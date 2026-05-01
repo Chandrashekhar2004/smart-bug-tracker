@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Bug Tracker - Auto Priority System</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1>🐛 Smart Bug Tracker</h1>
+                    <p class="subtitle">Intelligent Priority Assignment System</p>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-card">
+                        <span class="stat-label">Total Bugs</span>
+                        <span class="stat-value" id="totalBugs">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Open</span>
+                        <span class="stat-value" id="openBugs">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">🔴 High</span>
+                        <span class="stat-value" id="highBugs">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="main-content">
+            <!-- ===== LEFT SIDEBAR: FORM ===== -->
+            <aside class="sidebar">
+                <section class="form-section">
+                    <h2>📝 Report New Bug</h2>
+                    <form id="bugForm" class="bug-form">
+                        <div class="form-group">
+                            <label for="bugTitle">Bug Title *</label>
+                            <input type="text" id="bugTitle" placeholder="e.g., Payment button crash on mobile"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bugDescription">Description *</label>
+                            <textarea id="bugDescription"
+                                placeholder="Describe the issue in detail. The system will automatically assign priority based on keywords like 'crash', 'payment', 'security', etc."
+                                rows="6" required></textarea>
+                        </div>
+
+                        <div class="form-info">
+                            <p><strong>💡 Smart Priority System</strong></p>
+                            <p>The system analyzes your description and automatically assigns priority:</p>
+                            <ul>
+                                <li><strong>🔴 High:</strong> crash, payment, security, data loss</li>
+                                <li><strong>🟡 Medium:</strong> slow, delay, incorrect, error</li>
+                                <li><strong>🟢 Low:</strong> UI, typo, alignment, style</li>
+                            </ul>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            Submit Bug Report
+                        </button>
+                    </form>
+                </section>
+            </aside>
+
+            <!-- ===== RIGHT SECTION: DASHBOARD ===== -->
+            <section class="dashboard">
+                <!-- ===== FILTERS & SEARCH ===== -->
+                <div class="controls">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="🔍 Search by title, description, or ID..."
+                            class="search-input">
+                    </div>
+
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="priorityFilter">Priority:</label>
+                            <select id="priorityFilter" class="filter-select">
+                                <option value="All">All Priorities</option>
+                                <option value="High">🔴 High</option>
+                                <option value="Medium">🟡 Medium</option>
+                                <option value="Low">🟢 Low</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="statusFilter">Status:</label>
+                            <select id="statusFilter" class="filter-select">
+                                <option value="All">All Status</option>
+                                <option value="Open">📂 Open</option>
+                                <option value="Closed">✅ Closed</option>
+                            </select>
+                        </div>
+
+                        <button id="resetFilters" class="btn btn-secondary">Reset Filters</button>
+                    </div>
+                </div>
+
+                <!-- ===== BUGS TABLE ===== -->
+                <div class="bugs-container">
+                    <table class="bugs-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Confidence</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bugsTableBody">
+                            <tr class="empty-state">
+                                <td colspan="7">
+                                    <p>📭 No bugs reported yet. Submit your first bug report!</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+    <!-- Bug Details Modal -->
+    <div id="bugModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h2>Bug Details</h2>
+            <div id="bugModalBody"></div>
+            <div class="modal-actions">
+                <button id="toggleStatusBtn" class="btn btn-primary">Mark as Closed</button>
+                <button id="deleteBugBtn" class="btn btn-danger">Delete Bug</button>
+                <button class="btn btn-secondary modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
