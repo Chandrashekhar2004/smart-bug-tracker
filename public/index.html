@@ -75,6 +75,26 @@
             <section class="dashboard">
                 <!-- ===== FILTERS & SEARCH ===== -->
                 <div class="controls">
+                    <div class="admin-panel" id="adminPanel">
+                        <div class="admin-copy">
+                            <span class="admin-kicker">Admin Panel</span>
+                            <strong id="adminStatus">Login required to change bug status</strong>
+                            <span class="admin-help" id="adminHelp">Email: admin@smartbugs.local | Password: Admin@12345</span>
+                        </div>
+
+                        <form id="adminForm" class="admin-form">
+                            <input type="email" id="adminEmail" placeholder="Admin email" autocomplete="username"
+                                required>
+                            <input type="password" id="adminPassword" placeholder="Password"
+                                autocomplete="current-password" required>
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </form>
+
+                        <button id="adminLogout" class="btn btn-secondary admin-logout" type="button">
+                            Logout
+                        </button>
+                    </div>
+
                     <div class="search-box">
                         <input type="text" id="searchInput" placeholder="🔍 Search by title, description, or ID..."
                             class="search-input">
@@ -138,6 +158,7 @@
             <button class="modal-close">&times;</button>
             <h2>Bug Details</h2>
             <div id="bugModalBody"></div>
+            <p id="adminModalNote" class="admin-modal-note">Admin login required to change status.</p>
             <div class="modal-actions">
                 <button id="toggleStatusBtn" class="btn btn-primary">Mark as Closed</button>
                 <button id="deleteBugBtn" class="btn btn-danger">Delete Bug</button>

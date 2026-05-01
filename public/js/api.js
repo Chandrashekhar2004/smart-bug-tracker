@@ -4,6 +4,11 @@
 
 const API = {
   BASE_URL: '/api',
+  adminToken: null,
+
+  setAdminToken(token) {
+    this.adminToken = token;
+  },
 
   /**
    * Make a fetch request
@@ -12,13 +17,17 @@ const API = {
    * @param {object} data - Request body data
    * @returns {Promise} - Response data
    */
-  async request(method, endpoint, data = null) {
+  async request(method, endpoint, data = null, optionsOverride = {}) {
     const options = {
       method,
       headers: {
         'Content-Type': 'application/json'
       }
     };
+
+    if (optionsOverride.admin && this.adminToken) {
+      options.headers.Authorization = `Bearer ${this.adminToken}`;
+    }
 
     if (data) {
       options.body = JSON.stringify(data);
@@ -46,6 +55,22 @@ const API = {
    */
   async createBug(bugData) {
     return this.request('POST', '/bugs', bugData);
+  },
+
+  async getAdminConfig() {
+    return this.request('GET', '/admin/config');
+  },
+
+  async loginAdmin(credentials) {
+    return this.request('POST', '/admin/login', credentials);
+  },
+
+  async getAdminProfile() {
+    return this.request('GET', '/admin/me', null, { admin: true });
+  },
+
+  async logoutAdmin() {
+    return this.request('POST', '/admin/logout', null, { admin: true });
   },
 
   /**
@@ -87,7 +112,7 @@ const API = {
    * @returns {Promise} - Updated bug object
    */
   async updateBugStatus(id, status) {
-    return this.request('PUT', `/bugs/${id}`, { status });
+    return this.request('PUT', `/bugs/${id}`, { status }, { admin: true });
   },
 
   /**
@@ -96,7 +121,7 @@ const API = {
    * @returns {Promise} - Success message
    */
   async deleteBug(id) {
-    return this.request('DELETE', `/bugs/${id}`);
+    return this.request('DELETE', `/bugs/${id}`, null, { admin: true });
   },
 
   /**

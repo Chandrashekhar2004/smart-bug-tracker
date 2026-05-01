@@ -5,6 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const bugController = require('../controllers/bugController');
+const { requireAdmin } = require('../utils/adminAuth');
 
 /**
  * POST /api/bugs - Create a new bug
@@ -110,7 +111,7 @@ router.get('/:id', (req, res) => {
  * Body: { status } - "Open" or "Closed"
  * Returns: Updated bug object
  */
-router.put('/:id', (req, res) => {
+router.put('/:id', requireAdmin, (req, res) => {
   try {
     const { status } = req.body;
 
@@ -142,7 +143,7 @@ router.put('/:id', (req, res) => {
  * DELETE /api/bugs/:id - Delete a bug
  * Returns: Success message
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', requireAdmin, (req, res) => {
   try {
     bugController.deleteBug(req.params.id);
     res.json({

@@ -4,15 +4,23 @@
 
 const App = {
   searchTimer: null,
+  adminToken: localStorage.getItem('adminToken'),
+  adminEmail: null,
+  isAdmin: false,
 
   async init() {
     UI.init();
+    API.setAdminToken(this.adminToken);
     this.bindEvents();
+    await this.loadAdminConfig();
+    await this.restoreAdminSession();
     await this.refreshDashboard();
   },
 
   bindEvents() {
     UI.elements.bugForm.addEventListener('submit', event => this.handleBugSubmit(event));
+    UI.elements.adminForm.addEventListener('submit', event => this.handleAdminLogin(event));
+    UI.elements.adminLogout.addEventListener('click', () => this.handleAdminLogout());
     UI.elements.priorityFilter.addEventListener('change', () => this.loadBugs());
     UI.elements.statusFilter.addEventListener('change', () => this.loadBugs());
     UI.elements.resetFilters.addEventListener('click', () => this.handleResetFilters());
@@ -59,6 +67,79 @@ const App = {
     }
   },
 
+  async loadAdminConfig() {
+    try {
+      const result = await API.getAdminConfig();
+      UI.updateAdminHelp(result.data.admin_email);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  async restoreAdminSession() {
+    if (!this.adminToken) {
+      UI.setAdminState(false);
+      return;
+    }
+
+    try {
+      const result = await API.getAdminProfile();
+      this.isAdmin = result.data.authenticated;
+      this.adminEmail = result.data.email;
+
+      if (!this.isAdmin) {
+        this.clearAdminSession();
+      }
+
+      UI.setAdminState(this.isAdmin, this.adminEmail);
+    } catch (error) {
+      this.clearAdminSession();
+      UI.setAdminState(false);
+    }
+  },
+
+  async handleAdminLogin(event) {
+    event.preventDefault();
+
+    try {
+      const result = await API.loginAdmin({
+        email: UI.elements.adminEmail.value,
+        password: UI.elements.adminPassword.value
+      });
+
+      this.adminToken = result.data.token;
+      this.adminEmail = result.data.email;
+      this.isAdmin = true;
+      localStorage.setItem('adminToken', this.adminToken);
+      API.setAdminToken(this.adminToken);
+      UI.elements.adminPassword.value = '';
+      UI.setAdminState(true, this.adminEmail);
+      UI.showToast('Admin login successful', 'success');
+    } catch (error) {
+      UI.showToast(error.message, 'error');
+    }
+  },
+
+  async handleAdminLogout() {
+    try {
+      await API.logoutAdmin();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.clearAdminSession();
+      UI.setAdminState(false);
+      UI.showToast('Admin logged out', 'info');
+    }
+  },
+
+  clearAdminSession() {
+    this.adminToken = null;
+    this.adminEmail = null;
+    this.isAdmin = false;
+    localStorage.removeItem('adminToken');
+    API.setAdminToken(null);
+  },
+
   async handleBugSubmit(event) {
     event.preventDefault();
 
@@ -93,6 +174,11 @@ const App = {
       return;
     }
 
+    if (!this.isAdmin) {
+      UI.showToast('Admin login required to change status', 'error');
+      return;
+    }
+
     try {
       const currentBug = await API.getBugById(bugId);
       const nextStatus = currentBug.data.status === 'Open' ? 'Closed' : 'Open';
@@ -107,6 +193,12 @@ const App = {
 
   async handleDeleteBug() {
     const bugId = UI.elements.bugModal.dataset.bugId;
+
+    if (!this.isAdmin) {
+      UI.showToast('Admin login required to delete bugs', 'error');
+      return;
+    }
+
     if (!bugId || !confirm('Delete this bug?')) {
       return;
     }
@@ -122,4 +214,5 @@ const App = {
   }
 };
 
+window.App = App;
 document.addEventListener('DOMContentLoaded', () => App.init());

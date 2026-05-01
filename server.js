@@ -9,6 +9,7 @@ const cors = require('cors');
 
 // Import routes
 const bugRoutes = require('./routes/bugRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Initialize Express app
 const app = express();
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== ROUTES =====
+app.use('/api/admin', adminRoutes);
 app.use('/api/bugs', bugRoutes);
 
 // Root route - serve index.html

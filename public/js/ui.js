@@ -28,9 +28,19 @@ const UI = {
       statusFilter: document.getElementById('statusFilter'),
       resetFilters: document.getElementById('resetFilters'),
 
+      // Admin
+      adminPanel: document.getElementById('adminPanel'),
+      adminForm: document.getElementById('adminForm'),
+      adminEmail: document.getElementById('adminEmail'),
+      adminPassword: document.getElementById('adminPassword'),
+      adminStatus: document.getElementById('adminStatus'),
+      adminHelp: document.getElementById('adminHelp'),
+      adminLogout: document.getElementById('adminLogout'),
+
       // Modal
       bugModal: document.getElementById('bugModal'),
       bugModalBody: document.getElementById('bugModalBody'),
+      adminModalNote: document.getElementById('adminModalNote'),
       toggleStatusBtn: document.getElementById('toggleStatusBtn'),
       deleteBugBtn: document.getElementById('deleteBugBtn'),
 
@@ -192,6 +202,7 @@ const UI = {
       // Update toggle status button text
       const buttonText = bug.status === 'Open' ? 'Mark as Closed' : 'Mark as Open';
       this.elements.toggleStatusBtn.textContent = buttonText;
+      this.updateAdminControls(Boolean(window.App && window.App.isAdmin));
     } catch (error) {
       this.showToast('Error loading bug details', 'error');
       console.error(error);
@@ -295,6 +306,33 @@ const UI = {
     this.elements.totalBugs.textContent = stats.total;
     this.elements.openBugs.textContent = stats.by_status.Open;
     this.elements.highBugs.textContent = stats.by_priority.High;
+  },
+
+  /**
+   * Update admin login and modal controls
+   * @param {boolean} isAdmin - Whether admin is logged in
+   * @param {string|null} email - Admin email
+   */
+  setAdminState(isAdmin, email = null) {
+    this.elements.adminPanel.classList.toggle('is-admin', isAdmin);
+    this.elements.adminForm.hidden = isAdmin;
+    this.elements.adminLogout.hidden = !isAdmin;
+    this.elements.adminStatus.textContent = isAdmin
+      ? `Logged in as ${email}`
+      : 'Login required to change bug status';
+
+    this.updateAdminControls(isAdmin);
+  },
+
+  updateAdminHelp(adminEmail) {
+    this.elements.adminHelp.textContent = `Email: ${adminEmail} | Password: Admin@12345`;
+    this.elements.adminEmail.value = adminEmail;
+  },
+
+  updateAdminControls(isAdmin) {
+    this.elements.toggleStatusBtn.hidden = !isAdmin;
+    this.elements.deleteBugBtn.hidden = !isAdmin;
+    this.elements.adminModalNote.hidden = isAdmin;
   },
 
   /**
