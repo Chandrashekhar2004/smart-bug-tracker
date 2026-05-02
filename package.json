@@ -1,29 +1,19 @@
-﻿{
+{
   "name": "smart-bug-tracker",
-  "version": "1.0.0",
-  "description": "Smart Bug Tracker with Auto Priority System - Production Ready Application",
+  "version": "2.0.0",
+  "description": "Smart Bug Tracker with Role-Based Workflow (Tester / Admin / Developer)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node server.js"
   },
-  "keywords": [
-    "bug-tracker",
-    "priority-system",
-    "nodejs",
-    "express",
-    "javascript"
-  ],
-  "author": "Chandrashekar Bhatt",
-  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5"
   },
-  "devDependencies": {},
   "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
-  }
+    "node": ">=14.0.0"
+  },
+  "author": "Smart Bug Tracker",
+  "license": "MIT"
 }

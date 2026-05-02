@@ -1,224 +1,195 @@
-﻿/**
- * Bug Controller - Handles all bug-related business logic
+/**
+ * Bug Controller - All bug CRUD + workflow actions
+ * Statuses: Open → Assigned → Resolved → Closed (or back to Open)
  */
 
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
 const { calculatePriority } = require('../utils/priorityEngine');
 
-// Path to data file
 const DATA_FILE = path.join(__dirname, '../data/bugs.json');
 
-// Ensure data directory exists
 function ensureDataDirectory() {
-  const dataDir = path.join(__dirname, '../data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
+  const dir = path.join(__dirname, '../data');
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
-/**
- * Read all bugs from JSON file
- * @returns {array} - Array of bug objects
- */
 function readBugs() {
   ensureDataDirectory();
   try {
-    if (!fs.existsSync(DATA_FILE)) {
-      fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2));
-      return [];
-    }
-    const data = fs.readFileSync(DATA_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading bugs:', error);
-    return [];
-  }
+    if (!fs.existsSync(DATA_FILE)) { fs.writeFileSync(DATA_FILE, '[]'); return []; }
+    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  } catch { return []; }
 }
 
-/**
- * Write bugs to JSON file
- * @param {array} bugs - Array of bug objects
- */
 function writeBugs(bugs) {
   ensureDataDirectory();
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(bugs, null, 2));
-  } catch (error) {
-    console.error('Error writing bugs:', error);
-    throw new Error('Failed to save bug data');
-  }
+  fs.writeFileSync(DATA_FILE, JSON.stringify(bugs, null, 2));
 }
 
-/**
- * Generate unique ID for bug
- * @returns {string} - Unique ID
- */
 function generateId() {
   return `BUG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-/**
- * Create a new bug with automatic priority calculation
- * @param {object} bugData - { title, description }
- * @returns {object} - Created bug object
- */
-function createBug(bugData) {
-  // Validate input
-  if (!bugData.title || !bugData.title.trim()) {
-    throw new Error('Bug title is required');
-  }
-  if (!bugData.description || !bugData.description.trim()) {
-    throw new Error('Bug description is required');
-  }
+// ── CREATE ─────────────────────────────────────────────────────────────────────
+function createBug(bugData, submittedBy) {
+  if (!bugData.title?.trim())       throw new Error('Bug title is required');
+  if (!bugData.description?.trim()) throw new Error('Bug description is required');
 
-  // Calculate priority using priority engine
   const priorityInfo = calculatePriority(bugData.title, bugData.description);
 
-  // Create bug object
   const bug = {
-    id: generateId(),
-    title: bugData.title.trim(),
-    description: bugData.description.trim(),
-    priority: priorityInfo.priority,
-    score: priorityInfo.score,
-    confidence: priorityInfo.confidence,
+    id:               generateId(),
+    title:            bugData.title.trim(),
+    description:      bugData.description.trim(),
+    priority:         priorityInfo.priority,
+    score:            priorityInfo.score,
+    confidence:       priorityInfo.confidence,
     keywords_matched: priorityInfo.total_keywords_matched,
-    status: 'Open', // Open or Closed
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    status:           'Open',        // Open | Assigned | Resolved | Closed
+    submitted_by:     submittedBy || 'anonymous',
+    assigned_to:      null,          // developer email
+    resolved_notes:   null,
+    created_at:       new Date().toISOString(),
+    updated_at:       new Date().toISOString()
   };
 
-  // Read existing bugs, add new one, save
   const bugs = readBugs();
   bugs.push(bug);
   writeBugs(bugs);
-
   return bug;
 }
 
-/**
- * Get all bugs, optionally filtered
- * @param {object} filters - { priority, status, search }
- * @returns {array} - Array of bug objects
- */
+// ── READ ───────────────────────────────────────────────────────────────────────
 function getAllBugs(filters = {}) {
   let bugs = readBugs();
 
-  // Filter by priority if specified
-  if (filters.priority && filters.priority !== 'All') {
-    bugs = bugs.filter(bug => bug.priority === filters.priority);
-  }
+  if (filters.priority && filters.priority !== 'All')
+    bugs = bugs.filter(b => b.priority === filters.priority);
 
-  // Filter by status if specified
-  if (filters.status && filters.status !== 'All') {
-    bugs = bugs.filter(bug => bug.status === filters.status);
-  }
+  if (filters.status && filters.status !== 'All')
+    bugs = bugs.filter(b => b.status === filters.status);
 
-  // Search in title and description if search term provided
-  if (filters.search && filters.search.trim()) {
-    const searchTerm = filters.search.toLowerCase().trim();
-    bugs = bugs.filter(bug =>
-      bug.title.toLowerCase().includes(searchTerm) ||
-      bug.description.toLowerCase().includes(searchTerm) ||
-      bug.id.toLowerCase().includes(searchTerm)
+  if (filters.assigned_to)
+    bugs = bugs.filter(b => b.assigned_to === filters.assigned_to);
+
+  if (filters.submitted_by)
+    bugs = bugs.filter(b => b.submitted_by === filters.submitted_by);
+
+  if (filters.search?.trim()) {
+    const q = filters.search.toLowerCase().trim();
+    bugs = bugs.filter(b =>
+      b.title.toLowerCase().includes(q) ||
+      b.description.toLowerCase().includes(q) ||
+      b.id.toLowerCase().includes(q)
     );
   }
 
-  // Sort by creation date (newest first)
-  bugs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-  return bugs;
+  return bugs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 }
 
-/**
- * Get a single bug by ID
- * @param {string} id - Bug ID
- * @returns {object|null} - Bug object or null if not found
- */
 function getBugById(id) {
-  const bugs = readBugs();
-  return bugs.find(bug => bug.id === id) || null;
+  return readBugs().find(b => b.id === id) || null;
 }
 
-/**
- * Update bug status
- * @param {string} id - Bug ID
- * @param {string} status - New status (Open or Closed)
- * @returns {object} - Updated bug object
- */
-function updateBugStatus(id, status) {
-  // Validate status
-  if (!['Open', 'Closed'].includes(status)) {
-    throw new Error('Invalid status. Must be "Open" or "Closed"');
-  }
+// ── ADMIN: ASSIGN ──────────────────────────────────────────────────────────────
+function assignBug(id, developerEmail) {
+  if (!developerEmail) throw new Error('Developer email is required');
 
   const bugs = readBugs();
-  const bugIndex = bugs.findIndex(bug => bug.id === id);
+  const idx  = bugs.findIndex(b => b.id === id);
+  if (idx === -1) throw new Error('Bug not found');
+  if (bugs[idx].status !== 'Open') throw new Error('Only open bugs can be assigned');
 
-  if (bugIndex === -1) {
-    throw new Error('Bug not found');
-  }
-
-  // Update status and timestamp
-  bugs[bugIndex].status = status;
-  bugs[bugIndex].updated_at = new Date().toISOString();
+  bugs[idx].assigned_to   = developerEmail;
+  bugs[idx].status        = 'Assigned';
+  bugs[idx].updated_at    = new Date().toISOString();
 
   writeBugs(bugs);
-  return bugs[bugIndex];
+  return bugs[idx];
 }
 
-/**
- * Delete a bug
- * @param {string} id - Bug ID
- * @returns {boolean} - True if deleted
- */
-function deleteBug(id) {
+// ── DEVELOPER: RESOLVE ─────────────────────────────────────────────────────────
+function resolveBug(id, resolvedNotes, developerEmail) {
   const bugs = readBugs();
-  const initialLength = bugs.length;
-  const filtered = bugs.filter(bug => bug.id !== id);
+  const idx  = bugs.findIndex(b => b.id === id);
+  if (idx === -1) throw new Error('Bug not found');
 
-  if (filtered.length === initialLength) {
-    throw new Error('Bug not found');
+  const bug = bugs[idx];
+  if (bug.assigned_to !== developerEmail)
+    throw new Error('This bug is not assigned to you');
+  if (bug.status !== 'Assigned')
+    throw new Error('Only assigned bugs can be marked as resolved');
+
+  bug.status         = 'Resolved';
+  bug.resolved_notes = (resolvedNotes || '').trim() || 'Marked as resolved.';
+  bug.updated_at     = new Date().toISOString();
+
+  writeBugs(bugs);
+  return bug;
+}
+
+// ── ADMIN: CLOSE / REOPEN ──────────────────────────────────────────────────────
+function updateBugStatus(id, status) {
+  if (!['Open', 'Closed'].includes(status))
+    throw new Error('Invalid status. Must be "Open" or "Closed"');
+
+  const bugs = readBugs();
+  const idx  = bugs.findIndex(b => b.id === id);
+  if (idx === -1) throw new Error('Bug not found');
+  const currentStatus = bugs[idx].status;
+
+  if (status === 'Closed' && currentStatus !== 'Resolved')
+    throw new Error('Only resolved bugs can be closed');
+  if (status === 'Open' && !['Resolved', 'Closed'].includes(currentStatus))
+    throw new Error('Only resolved or closed bugs can be reopened');
+
+  bugs[idx].status     = status;
+  bugs[idx].updated_at = new Date().toISOString();
+  // Clear assignment if reopening
+  if (status === 'Open') {
+    bugs[idx].assigned_to   = null;
+    bugs[idx].resolved_notes = null;
   }
 
+  writeBugs(bugs);
+  return bugs[idx];
+}
+
+// ── ADMIN: DELETE ──────────────────────────────────────────────────────────────
+function deleteBug(id) {
+  const bugs     = readBugs();
+  const filtered = bugs.filter(b => b.id !== id);
+  if (filtered.length === bugs.length) throw new Error('Bug not found');
   writeBugs(filtered);
   return true;
 }
 
-/**
- * Get priority statistics
- * @returns {object} - Statistics about bugs
- */
-function getStatistics() {
-  const bugs = readBugs();
-
-  const stats = {
-    total: bugs.length,
+// ── STATS ──────────────────────────────────────────────────────────────────────
+function getStatistics(filters = {}) {
+  const bugs = getAllBugs(filters);
+  return {
+    total:       bugs.length,
     by_priority: {
-      High: bugs.filter(b => b.priority === 'High').length,
+      High:   bugs.filter(b => b.priority === 'High').length,
       Medium: bugs.filter(b => b.priority === 'Medium').length,
-      Low: bugs.filter(b => b.priority === 'Low').length
+      Low:    bugs.filter(b => b.priority === 'Low').length
     },
     by_status: {
-      Open: bugs.filter(b => b.status === 'Open').length,
-      Closed: bugs.filter(b => b.status === 'Closed').length
+      Open:     bugs.filter(b => b.status === 'Open').length,
+      Assigned: bugs.filter(b => b.status === 'Assigned').length,
+      Resolved: bugs.filter(b => b.status === 'Resolved').length,
+      Closed:   bugs.filter(b => b.status === 'Closed').length
     },
-    average_confidence: bugs.length > 0 
-      ? Math.round(bugs.reduce((sum, b) => sum + b.confidence, 0) / bugs.length)
+    average_confidence: bugs.length > 0
+      ? Math.round(bugs.reduce((s, b) => s + b.confidence, 0) / bugs.length)
       : 0
   };
-
-  return stats;
 }
 
 module.exports = {
-  createBug,
-  getAllBugs,
-  getBugById,
-  updateBugStatus,
-  deleteBug,
-  getStatistics,
-  readBugs,
-  writeBugs
+  createBug, getAllBugs, getBugById,
+  assignBug, resolveBug,
+  updateBugStatus, deleteBug, getStatistics,
+  readBugs, writeBugs
 };

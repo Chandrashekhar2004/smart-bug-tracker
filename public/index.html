@@ -1,178 +1,276 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Bug Tracker - Auto Priority System</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Bug Tracker</title>
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
-
 <body>
-    <div class="container">
-        <!-- ===== HEADER ===== -->
-        <header class="header">
-            <div class="header-content">
-                <div class="logo-section">
-                    <h1>🐛 Smart Bug Tracker</h1>
-                    <p class="subtitle">Intelligent Priority Assignment System</p>
-                </div>
-                <div class="header-stats">
-                    <div class="stat-card">
-                        <span class="stat-label">Total Bugs</span>
-                        <span class="stat-value" id="totalBugs">0</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-label">Open</span>
-                        <span class="stat-value" id="openBugs">0</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-label">🔴 High</span>
-                        <span class="stat-value" id="highBugs">0</span>
-                    </div>
-                </div>
-            </div>
-        </header>
 
-        <!-- ===== MAIN CONTENT ===== -->
-        <main class="main-content">
-            <!-- ===== LEFT SIDEBAR: FORM ===== -->
-            <aside class="sidebar">
-                <section class="form-section">
-                    <h2>📝 Report New Bug</h2>
-                    <form id="bugForm" class="bug-form">
-                        <div class="form-group">
-                            <label for="bugTitle">Bug Title *</label>
-                            <input type="text" id="bugTitle" placeholder="e.g., Payment button crash on mobile"
-                                required>
-                        </div>
+<!-- ═══════════════════════════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════════════════════════════ -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-hero">
+    <h1>🐛 Smart Bug Tracker</h1>
+  </div>
 
-                        <div class="form-group">
-                            <label for="bugDescription">Description *</label>
-                            <textarea id="bugDescription"
-                                placeholder="Describe the issue in detail. The system will automatically assign priority based on keywords like 'crash', 'payment', 'security', etc."
-                                rows="6" required></textarea>
-                        </div>
+  <div class="role-panels">
 
-                        <div class="form-info">
-                            <p><strong>💡 Smart Priority System</strong></p>
-                            <p>The system analyzes your description and automatically assigns priority:</p>
-                            <ul>
-                                <li><strong>🔴 High:</strong> crash, payment, security, data loss</li>
-                                <li><strong>🟡 Medium:</strong> slow, delay, incorrect, error</li>
-                                <li><strong>🟢 Low:</strong> UI, typo, alignment, style</li>
-                            </ul>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">
-                            Submit Bug Report
-                        </button>
-                    </form>
-                </section>
-            </aside>
-
-            <!-- ===== RIGHT SECTION: DASHBOARD ===== -->
-            <section class="dashboard">
-                <!-- ===== FILTERS & SEARCH ===== -->
-                <div class="controls">
-                    <div class="admin-panel" id="adminPanel">
-                        <div class="admin-copy">
-                            <span class="admin-kicker">Admin Panel</span>
-                            <strong id="adminStatus">Login required to change bug status</strong>
-                            <!-- <span class="admin-help" id="adminHelp">Email: admin@smartbugs.local | Password: Admin@12345</span> -->
-                        </div>
-
-                        <form id="adminForm" class="admin-form">
-                            <input type="email" id="adminEmail" placeholder="Admin email" autocomplete="username"
-                                required>
-                            <input type="password" id="adminPassword" placeholder="Password"
-                                autocomplete="current-password" required>
-                            <button type="submit" class="btn btn-primary">Login</button>
-                        </form>
-
-                        <button id="adminLogout" class="btn btn-secondary admin-logout" type="button">
-                            Logout
-                        </button>
-                    </div>
-
-                    <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="🔍 Search by title, description, or ID..."
-                            class="search-input">
-                    </div>
-
-                    <div class="filters">
-                        <div class="filter-group">
-                            <label for="priorityFilter">Priority:</label>
-                            <select id="priorityFilter" class="filter-select">
-                                <option value="All">All Priorities</option>
-                                <option value="High">🔴 High</option>
-                                <option value="Medium">🟡 Medium</option>
-                                <option value="Low">🟢 Low</option>
-                            </select>
-                        </div>
-
-                        <div class="filter-group">
-                            <label for="statusFilter">Status:</label>
-                            <select id="statusFilter" class="filter-select">
-                                <option value="All">All Status</option>
-                                <option value="Open">📂 Open</option>
-                                <option value="Closed">✅ Closed</option>
-                            </select>
-                        </div>
-
-                        <button id="resetFilters" class="btn btn-secondary">Reset Filters</button>
-                    </div>
-                </div>
-
-                <!-- ===== BUGS TABLE ===== -->
-                <div class="bugs-container">
-                    <table class="bugs-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Title</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Confidence</th>
-                                <th>Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="bugsTableBody">
-                            <tr class="empty-state">
-                                <td colspan="7">
-                                    <p>📭 No bugs reported yet. Submit your first bug report!</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- ===== MODALS ===== -->
-    <!-- Bug Details Modal -->
-    <div id="bugModal" class="modal">
-        <div class="modal-content">
-            <button class="modal-close">&times;</button>
-            <h2>Bug Details</h2>
-            <div id="bugModalBody"></div>
-            <p id="adminModalNote" class="admin-modal-note">Admin login required to change status.</p>
-            <div class="modal-actions">
-                <button id="toggleStatusBtn" class="btn btn-primary">Mark as Closed</button>
-                <button id="deleteBugBtn" class="btn btn-danger">Delete Bug</button>
-                <button class="btn btn-secondary modal-close-btn">Close</button>
-            </div>
+    <!-- TESTER PANEL -->
+    <div class="role-card" id="testerCard" data-role="tester">
+      <div class="role-card-header tester-header">
+        <div class="role-icon">🧪</div>
+        <h2>Tester</h2>
+      </div>
+      <div class="role-login-form" id="testerForm">
+        <div class="form-group">
+          <label>ID</label>
+          <input type="email" id="testerEmail" placeholder="Tester ID" autocomplete="username" />
         </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="testerPassword" placeholder="Password" autocomplete="current-password" />
+        </div>
+        <button class="btn btn-tester" onclick="App.login('tester')">Login as Tester</button>
+        <div class="login-error" id="testerError"></div>
+      </div>
     </div>
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
 
-    <!-- Scripts -->
-    <script src="js/api.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/main.js"></script>
+    <!-- ADMIN PANEL -->
+    <div class="role-card featured" id="adminCard" data-role="admin">
+      <div class="role-card-header admin-header">
+        <div class="role-icon">🛡️</div>
+        <h2>Admin</h2>
+      </div>
+      <div class="role-login-form" id="adminForm">
+        <div class="form-group">
+          <label>ID</label>
+          <input type="email" id="adminEmail" placeholder="Admin ID" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="adminPassword" placeholder="Password" autocomplete="current-password" />
+        </div>
+        <button class="btn btn-admin" onclick="App.login('admin')">Login as Admin</button>
+        <div class="login-error" id="adminError"></div>
+      </div>
+    </div>
+
+    <!-- DEVELOPER PANEL -->
+    <div class="role-card" id="developerCard" data-role="developer">
+      <div class="role-card-header dev-header">
+        <div class="role-icon">💻</div>
+        <h2>Developer</h2>
+      </div>
+      <div class="role-login-form" id="developerForm">
+        <div class="form-group">
+          <label>ID</label>
+          <input type="email" id="devEmail" placeholder="Developer ID" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="devPassword" placeholder="Password" autocomplete="current-password" />
+        </div>
+        <button class="btn btn-dev" onclick="App.login('developer')">Login as Developer</button>
+        <div class="login-error" id="devError"></div>
+      </div>
+    </div>
+
+  </div><!-- /.role-panels -->
+</div><!-- /#loginScreen -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     APP SHELL (shown after login)
+════════════════════════════════════════════════════════════════ -->
+<div id="appShell" class="app-shell hidden">
+
+  <!-- HEADER -->
+  <header class="app-header" id="appHeader">
+    <div class="header-left">
+      <span class="header-logo">🐛 Smart Bug Tracker</span>
+    </div>
+    <div class="header-center" id="headerStats">
+      <div class="stat-chip"><span id="statTotal">0</span><small>Total</small></div>
+      <div class="stat-chip open"><span id="statOpen">0</span><small>Open</small></div>
+      <div class="stat-chip assigned"><span id="statAssigned">0</span><small>Assigned</small></div>
+      <div class="stat-chip resolved"><span id="statResolved">0</span><small>Resolved</small></div>
+      <div class="stat-chip closed"><span id="statClosed">0</span><small>Closed</small></div>
+    </div>
+    <div class="header-right">
+      <span class="user-badge" id="userBadge"></span>
+      <button class="btn btn-outline-sm" onclick="App.logout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- ── TESTER DASHBOARD ── -->
+  <div id="testerDashboard" class="dashboard hidden">
+    <div class="dashboard-layout">
+      <aside class="dash-sidebar">
+        <section class="panel">
+          <h2 class="panel-title">Submit Tester Query</h2>
+          <form id="bugForm" class="bug-form" onsubmit="App.handleBugSubmit(event)">
+            <div class="form-group">
+              <label for="bugTitle">Title *</label>
+              <input type="text" id="bugTitle" placeholder="e.g. Payment button crashes on mobile" required />
+            </div>
+            <div class="form-group">
+              <label for="bugDescription">Description *</label>
+              <textarea id="bugDescription" rows="6" placeholder="Describe the query. It will go to Admin first, then be assigned to a Developer." required></textarea>
+            </div>
+            <div class="priority-legend">
+              <strong>💡 Auto Priority:</strong>
+              <span class="badge badge-high">🔴 High</span> crash, payment, security
+              <span class="badge badge-med">🟡 Medium</span> slow, error, incorrect
+              <span class="badge badge-low">🟢 Low</span> UI, typo, style
+            </div>
+            <button type="submit" class="btn btn-tester btn-block">Submit Query to Admin</button>
+          </form>
+        </section>
+      </aside>
+
+      <section class="dash-main">
+        <div class="controls-bar">
+          <input type="text" id="testerSearch" class="search-input" placeholder="🔍 Search your reports…" oninput="App.debouncedLoad()" />
+          <select id="testerStatusFilter" class="filter-select" onchange="App.loadTesterBugs()">
+            <option value="All">All Status</option>
+            <option value="Open">📂 Open</option>
+            <option value="Assigned">🔧 Assigned</option>
+            <option value="Resolved">✅ Resolved</option>
+            <option value="Closed">🔒 Closed</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="bugs-table">
+            <thead><tr>
+              <th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Assigned To</th><th>Created</th><th></th>
+            </tr></thead>
+            <tbody id="testerTableBody">
+              <tr class="empty-row"><td colspan="7">No queries submitted yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div><!-- /#testerDashboard -->
+
+  <!-- ── ADMIN DASHBOARD ── -->
+  <div id="adminDashboard" class="dashboard hidden">
+    <div class="dashboard-layout">
+      <section class="dash-main full-width">
+
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="App.switchAdminTab('all', this)">All Queries</button>
+          <button class="tab-btn" onclick="App.switchAdminTab('pending', this)">📂 Pending Assignment</button>
+          <button class="tab-btn" onclick="App.switchAdminTab('resolved', this)">✅ Awaiting Decision</button>
+        </div>
+
+        <div class="controls-bar">
+          <input type="text" id="adminSearch" class="search-input" placeholder="Search queries..." oninput="App.debouncedLoad()" />
+          <select id="adminPriorityFilter" class="filter-select" onchange="App.loadAdminBugs()">
+            <option value="All">All Priorities</option>
+            <option value="High">🔴 High</option>
+            <option value="Medium">🟡 Medium</option>
+            <option value="Low">🟢 Low</option>
+          </select>
+          <select id="adminStatusFilter" class="filter-select" onchange="App.loadAdminBugs()">
+            <option value="All">All Status</option>
+            <option value="Open">📂 Open</option>
+            <option value="Assigned">🔧 Assigned</option>
+            <option value="Resolved">✅ Resolved</option>
+            <option value="Closed">🔒 Closed</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table class="bugs-table">
+            <thead><tr>
+              <th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Submitted By</th><th>Assigned To</th><th>Created</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="adminTableBody">
+              <tr class="empty-row"><td colspan="8">No queries found.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div><!-- /#adminDashboard -->
+
+  <!-- ── DEVELOPER DASHBOARD ── -->
+  <div id="developerDashboard" class="dashboard hidden">
+    <div class="dashboard-layout">
+      <section class="dash-main full-width">
+        <div class="controls-bar">
+          <input type="text" id="devSearch" class="search-input" placeholder="Search assigned queries..." oninput="App.debouncedLoad()" />
+          <select id="devStatusFilter" class="filter-select" onchange="App.loadDevBugs()">
+            <option value="All">All Status</option>
+            <option value="Assigned">🔧 Assigned</option>
+            <option value="Resolved">✅ Resolved</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="bugs-table">
+            <thead><tr>
+              <th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Submitted By</th><th>Created</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="devTableBody">
+              <tr class="empty-row"><td colspan="7">No queries assigned to you yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div><!-- /#developerDashboard -->
+
+</div><!-- /#appShell -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     BUG DETAIL MODAL
+════════════════════════════════════════════════════════════════ -->
+<div id="bugModal" class="modal-overlay hidden" onclick="App.closeModal(event)">
+  <div class="modal-box">
+    <button class="modal-x" onclick="App.closeModal()">&times;</button>
+    <h2 id="modalTitle">Query Details</h2>
+    <div id="modalBody"></div>
+    <div id="modalActions" class="modal-actions"></div>
+  </div>
+</div>
+
+<!-- RESOLVE MODAL (Developer) -->
+<div id="resolveModal" class="modal-overlay hidden" onclick="App.closeResolveModal(event)">
+  <div class="modal-box small">
+    <button class="modal-x" onclick="App.closeResolveModal()">&times;</button>
+    <h2>✅ Mark as Resolved</h2>
+    <p>Describe how you resolved this query for Admin review:</p>
+    <textarea id="resolveNotes" rows="5" placeholder="e.g. Fixed null pointer in PaymentService.java line 42…" style="width:100%;margin-top:8px;"></textarea>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn btn-dev" onclick="App.confirmResolve()">Report Resolution to Admin</button>
+      <button class="btn btn-outline" onclick="App.closeResolveModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGN MODAL (Admin) -->
+<div id="assignModal" class="modal-overlay hidden" onclick="App.closeAssignModal(event)">
+  <div class="modal-box small">
+    <button class="modal-x" onclick="App.closeAssignModal()">&times;</button>
+    <h2>Assign Query</h2>
+    <p>Select a developer to assign this query to:</p>
+    <select id="devSelect" style="width:100%;margin-top:12px;padding:10px;font-size:14px;border-radius:8px;border:1px solid #d1d5db;"></select>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn btn-admin" onclick="App.confirmAssign()">Assign Query</button>
+      <button class="btn btn-outline" onclick="App.closeAssignModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script src="js/api.js"></script>
+<script src="js/main.js"></script>
 </body>
-
 </html>
