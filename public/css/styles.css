@@ -595,7 +595,258 @@ code {
 }
 
 @media (max-width: 600px) {
-  .dashboard  { padding: 12px; }
-  .controls-bar { flex-direction: column; }
-  .tab-bar { flex-wrap: wrap; }
+  body { font-size: 13px; }
+
+  .login-screen {
+    justify-content: flex-start;
+    padding: 22px 14px;
+  }
+  .login-hero {
+    margin: 8px 0 20px;
+  }
+  .login-hero h1 {
+    font-size: 1.8rem;
+    line-height: 1.15;
+  }
+  .role-panels {
+    gap: 14px;
+  }
+  .role-card,
+  .role-card.featured {
+    max-width: none;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(15,23,42,.14);
+  }
+  .role-card:hover,
+  .role-card.featured:hover {
+    transform: none;
+  }
+  .role-card-header {
+    padding: 16px;
+  }
+  .role-icon {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+  .role-card-header h2 {
+    font-size: 1.15rem;
+  }
+  .role-login-form {
+    padding: 16px;
+    gap: 12px;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select,
+  .search-input,
+  .filter-select {
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .dashboard {
+    padding: 12px;
+  }
+  .app-header {
+    align-items: stretch;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .header-left,
+  .header-right {
+    width: 100%;
+  }
+  .header-logo {
+    display: block;
+    text-align: center;
+    font-size: 1rem;
+  }
+  .header-right {
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .user-badge {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+  .btn-outline-sm {
+    width: auto;
+    min-height: 36px;
+    padding: 6px 12px;
+    flex-shrink: 0;
+  }
+  .header-center {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .stat-chip {
+    min-width: 0;
+    padding: 5px 4px;
+    border-radius: 7px;
+  }
+  .stat-chip span {
+    font-size: .95rem;
+  }
+  .stat-chip small {
+    font-size: 9px;
+  }
+
+  .dashboard-layout {
+    gap: 12px;
+  }
+  .panel {
+    padding: 16px;
+    border-radius: 10px;
+  }
+  .panel-title {
+    margin-bottom: 14px;
+  }
+  .priority-legend {
+    line-height: 1.7;
+  }
+  .controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .tab-bar {
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+  }
+  .tab-btn {
+    min-height: 42px;
+  }
+
+  .table-wrap {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+  .bugs-table,
+  .bugs-table thead,
+  .bugs-table tbody,
+  .bugs-table tr,
+  .bugs-table th,
+  .bugs-table td {
+    display: block;
+    width: 100%;
+  }
+  .bugs-table thead {
+    display: none;
+  }
+  .bugs-table tr {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .bugs-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+  .bugs-table td::before {
+    content: attr(data-label);
+    flex: 0 0 94px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    text-align: left;
+    text-transform: uppercase;
+  }
+  .bugs-table tr:hover td {
+    background: transparent;
+  }
+  .bugs-table td:last-child {
+    border-bottom: none;
+  }
+  .bugs-table td.action-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+  }
+  .bugs-table td.action-cell::before {
+    flex-basis: auto;
+  }
+  .action-cell .btn {
+    width: 100%;
+  }
+  .empty-row td {
+    display: block;
+    padding: 22px 16px;
+    text-align: center;
+  }
+  .empty-row td::before {
+    content: none;
+  }
+
+  #testerDashboard .bugs-table td:nth-child(1)::before { content: "ID"; }
+  #testerDashboard .bugs-table td:nth-child(2)::before { content: "Title"; }
+  #testerDashboard .bugs-table td:nth-child(3)::before { content: "Priority"; }
+  #testerDashboard .bugs-table td:nth-child(4)::before { content: "Status"; }
+  #testerDashboard .bugs-table td:nth-child(5)::before { content: "Assigned To"; }
+  #testerDashboard .bugs-table td:nth-child(6)::before { content: "Created"; }
+  #testerDashboard .bugs-table td:nth-child(7)::before { content: "Actions"; }
+
+  #adminDashboard .bugs-table td:nth-child(1)::before { content: "ID"; }
+  #adminDashboard .bugs-table td:nth-child(2)::before { content: "Title"; }
+  #adminDashboard .bugs-table td:nth-child(3)::before { content: "Priority"; }
+  #adminDashboard .bugs-table td:nth-child(4)::before { content: "Status"; }
+  #adminDashboard .bugs-table td:nth-child(5)::before { content: "Submitted By"; }
+  #adminDashboard .bugs-table td:nth-child(6)::before { content: "Assigned To"; }
+  #adminDashboard .bugs-table td:nth-child(7)::before { content: "Created"; }
+  #adminDashboard .bugs-table td:nth-child(8)::before { content: "Actions"; }
+
+  #developerDashboard .bugs-table td:nth-child(1)::before { content: "ID"; }
+  #developerDashboard .bugs-table td:nth-child(2)::before { content: "Title"; }
+  #developerDashboard .bugs-table td:nth-child(3)::before { content: "Priority"; }
+  #developerDashboard .bugs-table td:nth-child(4)::before { content: "Status"; }
+  #developerDashboard .bugs-table td:nth-child(5)::before { content: "Submitted By"; }
+  #developerDashboard .bugs-table td:nth-child(6)::before { content: "Created"; }
+  #developerDashboard .bugs-table td:nth-child(7)::before { content: "Actions"; }
+
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 10px;
+  }
+  .modal-box,
+  .modal-box.small {
+    max-width: none;
+    max-height: 86vh;
+    border-radius: 16px;
+    padding: 22px 16px;
+  }
+  .modal-actions {
+    flex-direction: column;
+  }
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .toast {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    max-width: none;
+    text-align: center;
+  }
 }
